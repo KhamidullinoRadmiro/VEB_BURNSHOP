@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>BURN SHOP</title>
+</head>
+<body>
+    <h1>Добро пожаловать в BURN SHOP!</h1>
+    <h2>Категории</h2>
+    <ul>
+        {% for category in categories %}
+            <li>{{ category.name }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Товары</h2>
+    {% for product in products %}
+        <div>
+            <h3>{{ product.name }}</h3>
+            <p>Цена: {{ product.price }}</p>
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" width="100">
+            {% endif %}
+            <p>{{ product.description }}</p>
+        </div>
+    {% endfor %}
+</body>
+</html>
