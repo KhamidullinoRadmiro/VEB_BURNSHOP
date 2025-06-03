@@ -27,14 +27,20 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Главная</a>
+                        <a class="nav-link active" href="{% url 'home' %}">Главная</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'product_list' %}">Товары</a> <!-- Новая ссылка -->
+                        <a class="nav-link" href="{% url 'product_list' %}">Товары</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Акции</a>
                     </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Выход ({{ user.username }})</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Регистрация</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Вход</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -61,34 +67,31 @@
 
             <!-- Виджет 1: Популярные товары -->
             <div class="mb-5">
-                <h2 class="mb-3">Популярные товары</h2>
+                <h2 class="mb-4">Популярные товары</h2>
                 <div class="row">
                     {% for product in top_products %}
-                        <div class="col-md-4 mb-3">
-                            <div class="card widget-card h-100">
-                                <div class="card-body d-flex align-items-center">
+                        <div class="col-md-12 mb-3">
+                            <a href="{% url 'product_detail' product.pk %}" class="text-decoration-none text-dark">
+                                <div class="d-flex align-items-center p-3 border rounded">
                                     {% if product.image %}
                                         <img src="{{ product.image.url }}" alt="{{ product.name }}" class="widget-img rounded me-3">
                                     {% else %}
                                         <div class="widget-img bg-secondary rounded me-3"></div>
                                     {% endif %}
-                                    <div>
-                                        <h5 class="card-title mb-1">
-                                            <a href="#" class="text-decoration-none text-dark">{{ product.name }} ({{ product.brand }})</a>
-                                        </h5>
-                                        <p class="card-text text-muted small mb-0">Рейтинг: {{ product.avg_rating|floatformat:1 }}</p>
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1">{{ product.name }}</h5>
+                                        <p class="text-muted mb-0">{{ product.description|truncatewords:10 }}</p>
+                                    </div>
+                                    <div class="ms-3">
+                                        <p class="mb-0">Рейтинг: {{ product.avg_rating|floatformat:1 }}/5</p>
+                                        <p class="mb-0">Цена: {{ product.price }} ₽</p>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     {% empty %}
-                        <div class="col-12">
-                            <div class="alert alert-info">Нет популярных товаров.</div>
-                        </div>
+                        <p>Нет популярных товаров.</p>
                     {% endfor %}
-                </div>
-                <div class="text-end">
-                    <a href="#" class="btn btn-outline-primary">Посмотреть все товары</a>
                 </div>
             </div>
 
@@ -121,31 +124,25 @@
 
             <!-- Виджет 3: Категории -->
             <div class="mb-5">
-                <h2 class="mb-3">Категории</h2>
+                <h2 class="mb-4">Категории</h2>
                 <div class="row">
                     {% for category in categories_with_count %}
                         <div class="col-md-4 mb-3">
-                            <div class="card widget-card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        <a href="#" class="text-decoration-none text-dark">{{ category.name }}</a>
-                                    </h5>
-                                    <p class="card-text text-muted small mb-0">Товаров: {{ category.product_count }}</p>
+                            <a href="{% url 'category_products' category.pk %}" class="text-decoration-none text-dark">
+                                <div class="card h-100 text-center">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ category.name }}</h5>
+                                        <p class="card-text">Товаров: {{ category.product_count }}</p>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     {% empty %}
-                        <div class="col-12">
-                            <div class="alert alert-info">Нет категорий.</div>
-                        </div>
+                        <p>Нет категорий.</p>
                     {% endfor %}
                 </div>
-                <div class="text-end">
-                    <a href="#" class="btn btn-outline-primary">Все категории</a>
-                </div>
             </div>
-        </div>
-    </section>
+ </section>
 
     <!-- Футер -->
     <footer class="py-4 text-white">

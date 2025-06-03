@@ -2,22 +2,20 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Avg, Count
 from django.utils import timezone
+from django.contrib.auth import authenticate, login, logout
 from .models import Product, Review, Promotion, Category
-from .forms import ProductForm
+from .forms import ProductForm, UserRegisterForm, UserLoginForm
 
 def home(request):
-    # Популярные товары (Top-5 по среднему рейтингу)
     top_products = Product.objects.annotate(
         avg_rating=Avg('review__rating')
     ).order_by('-avg_rating')[:5]
 
-    # Текущие акции
     active_promotions = Promotion.objects.filter(
         start_date__lte=timezone.now(),
         end_date__gte=timezone.now()
     )
 
-    # Категории с количеством товаров
     categories_with_count = Category.objects.annotate(
         product_count=Count('product')
     )
@@ -77,3 +75,38 @@ def product_add(request):
     else:
         form = ProductForm()
     return render(request, 'main/product_add.html', {'form': form})
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            messages.success(request, 'Регистрация успешна! Теперь вы можете войти.')
+            return redirect('login')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'main/register.html', {'form': form})
+
+def user_login(request):
+    if request.method == 'POST':
+        form = UserLoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, 'Вы успешно вошли!')
+            return redirect('home')
+    else:
+        form = UserLoginForm()
+    return render(request, 'main/login.html', {'form': form})
+
+def user_logout(request):
+    logout(request)
+    messages.success(request, 'Вы успешно вышли!')
+    return redirect('home')
+
+def category_products(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    products = Product.objects.filter(category=category)
+    return render(request, 'main/category_products.html', {'category': category, 'products': products})
