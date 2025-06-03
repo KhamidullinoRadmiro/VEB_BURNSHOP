@@ -39,3 +39,14 @@ class Review(models.Model):
 
     def __str__(self):
         return f'Review for {self.product.name} by {self.user.username}'
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')  # Один товар добавляется в избранное только раз
+
+    def __str__(self):
+        return f'{self.user.username} - {self.product.name}'

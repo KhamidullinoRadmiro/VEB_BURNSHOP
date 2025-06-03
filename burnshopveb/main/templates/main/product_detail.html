@@ -20,6 +20,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}">Товары</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Акции</a></li>
                     {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'wishlist' %}">Избранное</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Выход ({{ user.username }})</a></li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Регистрация</a></li>
@@ -47,6 +48,13 @@
                 <p><strong>Категория:</strong> {{ product.category.name }}</p>
                 <p><strong>На складе:</strong> {{ product.stock }}</p>
                 <p><strong>Описание:</strong> {{ product.description }}</p>
+                {% if user.is_authenticated %}
+                    {% if is_in_wishlist %}
+                        <a href="{% url 'toggle_wishlist' product.pk %}" class="btn btn-danger">Удалить из избранного</a>
+                    {% else %}
+                        <a href="{% url 'toggle_wishlist' product.pk %}" class="btn btn-success">Добавить в избранное</a>
+                    {% endif %}
+                {% endif %}
                 {% if user.is_authenticated and user.is_superuser %}
                     <a href="{% url 'product_edit' product.pk %}" class="btn btn-warning">Редактировать</a>
                     <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger">Удалить</a>

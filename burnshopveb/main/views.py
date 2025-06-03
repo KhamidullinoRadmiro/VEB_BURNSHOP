@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.db.models import Avg, Count
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import user_passes_test
-from .models import Product, Review, Promotion, Category
+from django.contrib.auth.decorators import user_passes_test, login_required
+from .models import Product, Review, Promotion, Category, Wishlist
 from .forms import ProductForm, UserRegisterForm, UserLoginForm
 
 def home(request):
@@ -38,18 +38,23 @@ def search_results(request):
 
 def product_list(request):
     products = Product.objects.all()
+    if request.user.is_authenticated:
+        for product in products:
+            product.is_in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
     return render(request, 'main/product_list.html', {'products': products})
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     reviews = Review.objects.filter(product=product)
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    is_in_wishlist = request.user.is_authenticated and Wishlist.objects.filter(user=request.user, product=product).exists()
     return render(request, 'main/product_detail.html', {
         'product': product,
         'reviews': reviews,
         'avg_rating': avg_rating,
-        'user': request.user
+        'is_in_wishlist': is_in_wishlist
     })
+
 @user_passes_test(lambda u: u.is_superuser, login_url='home')
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
@@ -86,6 +91,9 @@ def product_add(request):
 def category_products(request, pk):
     category = get_object_or_404(Category, pk=pk)
     products = Product.objects.filter(category=category)
+    if request.user.is_authenticated:
+        for product in products:
+            product.is_in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
     return render(request, 'main/category_products.html', {'category': category, 'products': products})
 
 def register(request):
@@ -117,3 +125,19 @@ def user_logout(request):
     logout(request)
     messages.success(request, 'Вы успешно вышли!')
     return redirect('home')
+
+@login_required
+def toggle_wishlist(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+    if not created:
+        wishlist_item.delete()
+        messages.success(request, f'Товар "{product.name}" удалён из избранного.')
+    else:
+        messages.success(request, f'Товар "{product.name}" добавлен в избранное.')
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+@login_required
+def wishlist(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user)
+    return render(request, 'main/wishlist.html', {'wishlist_items': wishlist_items})
