@@ -67,13 +67,15 @@ class Command(BaseCommand):
             order.total_amount = total
             order.save()
 
-        # Создаём отзывы
+        # В секции создания отзывов
         for i in range(1, 21):
+            user = random.choice(User.objects.all())
+            product = random.choice(Product.objects.all())
             Review.objects.get_or_create(
-                user=random.choice(User.objects.all()),
-                product=random.choice(Product.objects.all()),
+                user=user,
+                product=product,
                 rating=random.randint(1, 5),
-                comment=f'Review {i}'
+                comment=f'Отзыв {i} для {product.name}'
             )
 
         # Создаём избранное

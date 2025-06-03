@@ -18,7 +18,6 @@
     </style>
 </head>
 <body>
-    <!-- Навигация -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">BURN SHOP</a>
@@ -31,7 +30,7 @@
                         <a class="nav-link" href="{% url 'home' %}">Главная</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Товары</a>
+                        <a class="nav-link" href="{% url 'product_list' %}">Товары</a> <!-- Новая ссылка -->
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Акции</a>
