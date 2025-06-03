@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.db.models import Avg, Count
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import user_passes_test
 from .models import Product, Review, Promotion, Category
 from .forms import ProductForm, UserRegisterForm, UserLoginForm
 
@@ -43,8 +44,13 @@ def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     reviews = Review.objects.filter(product=product)
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
-    return render(request, 'main/product_detail.html', {'product': product, 'reviews': reviews, 'avg_rating': avg_rating})
-
+    return render(request, 'main/product_detail.html', {
+        'product': product,
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'user': request.user
+    })
+@user_passes_test(lambda u: u.is_superuser, login_url='home')
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
@@ -57,6 +63,7 @@ def product_edit(request, pk):
         form = ProductForm(instance=product)
     return render(request, 'main/product_edit.html', {'form': form, 'product': product})
 
+@user_passes_test(lambda u: u.is_superuser, login_url='home')
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
@@ -75,6 +82,11 @@ def product_add(request):
     else:
         form = ProductForm()
     return render(request, 'main/product_add.html', {'form': form})
+
+def category_products(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    products = Product.objects.filter(category=category)
+    return render(request, 'main/category_products.html', {'category': category, 'products': products})
 
 def register(request):
     if request.method == 'POST':
@@ -105,8 +117,3 @@ def user_logout(request):
     logout(request)
     messages.success(request, 'Вы успешно вышли!')
     return redirect('home')
-
-def category_products(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    products = Product.objects.filter(category=category)
-    return render(request, 'main/category_products.html', {'category': category, 'products': products})

@@ -16,15 +16,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'home' %}">Главная</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'product_list' %}">Товары</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Акции</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}">Товары</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Акции</a></li>
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Выход ({{ user.username }})</a></li>
                     {% else %}
@@ -41,9 +35,9 @@
         <div class="row">
             <div class="col-md-6">
                 {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid mb-3">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid mb-3" style="max-height: 300px; object-fit: cover;">
                 {% else %}
-                    <div class="bg-secondary" style="width: 100%; height: 200px;"></div>
+                    <div class="bg-secondary" style="width: 100%; height: 300px;"></div>
                 {% endif %}
                 <p><strong>Бренд:</strong> {{ product.brand }}</p>
                 <p><strong>Цена:</strong> {{ product.price }} ₽</p>
@@ -53,8 +47,10 @@
                 <p><strong>Категория:</strong> {{ product.category.name }}</p>
                 <p><strong>На складе:</strong> {{ product.stock }}</p>
                 <p><strong>Описание:</strong> {{ product.description }}</p>
-                <a href="{% url 'product_edit' product.pk %}" class="btn btn-warning">Редактировать</a>
-                <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
+                {% if user.is_authenticated and user.is_superuser %}
+                    <a href="{% url 'product_edit' product.pk %}" class="btn btn-warning">Редактировать</a>
+                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
+                {% endif %}
             </div>
             <div class="col-md-6">
                 <h3>Отзывы</h3>

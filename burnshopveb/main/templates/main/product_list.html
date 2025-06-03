@@ -16,15 +16,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'home' %}">Главная</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'product_list' %}">Товары</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Акции</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'product_list' %}">Товары</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Акции</a></li>
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Выход ({{ user.username }})</a></li>
                     {% else %}
@@ -38,7 +32,9 @@
 
     <div class="container py-5">
         <h2 class="mb-4">Список товаров</h2>
-        <a href="{% url 'product_add' %}" class="btn btn-success mb-3">Добавить товар</a>
+        {% if user.is_superuser %}
+            <a href="{% url 'product_add' %}" class="btn btn-success mb-3">Добавить товар</a>
+        {% endif %}
         <div class="row">
             {% for product in products %}
                 <div class="col-md-4 mb-3">
@@ -47,8 +43,10 @@
                             <h5 class="card-title">{{ product.name }}</h5>
                             <p class="card-text">Цена: {{ product.price }} ₽</p>
                             <a href="{% url 'product_detail' product.pk %}" class="btn btn-primary">Подробнее</a>
-                            <a href="{% url 'product_edit' product.pk %}" class="btn btn-warning ms-2">Редактировать</a>
-                            <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger ms-2">Удалить</a>
+                            {% if user.is_authenticated and user.is_superuser %}
+                                <a href="{% url 'product_edit' product.pk %}" class="btn btn-warning ms-2">Редактировать</a>
+                                <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger ms-2">Удалить</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
