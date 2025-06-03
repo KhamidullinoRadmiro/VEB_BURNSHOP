@@ -33,7 +33,16 @@ def home(request):
 
 def search_results(request):
     query = request.GET.get('q', '')
-    products = Product.objects.filter(name__icontains=query) | Product.objects.filter(brand__icontains=query)
+    if query:
+        products = Product.objects.filter(
+            name__icontains=query
+        ) | Product.objects.filter(
+            brand__icontains=query
+        ) | Product.objects.filter(
+            description__icontains=query
+        )
+    else:
+        products = Product.objects.none()  # Если запрос пустой, возвращаем пустой queryset
     return render(request, 'main/search_results.html', {'products': products, 'query': query})
 
 def product_list(request):
