@@ -5,6 +5,7 @@ from .models import Category, Product, Promotion, Review, Wishlist
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'category', 'stock')

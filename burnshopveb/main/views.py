@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Avg, Count
 from django.utils import timezone
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import Product, Review, Promotion, Category, Wishlist
 from .forms import ProductForm, UserRegisterForm, UserLoginForm
@@ -42,7 +42,7 @@ def search_results(request):
             description__icontains=query
         )
     else:
-        products = Product.objects.none()  # Если запрос пустой, возвращаем пустой queryset
+        products = Product.objects.none()
     return render(request, 'main/search_results.html', {'products': products, 'query': query})
 
 def product_list(request):
